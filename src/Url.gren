@@ -19,7 +19,7 @@ module Url exposing
 -}
 
 
-import Elm.Kernel.Url
+import Gren.Kernel.Url
 
 
 
@@ -254,7 +254,7 @@ notes about Unicode [here][wiki].
 -}
 percentEncode : String -> String
 percentEncode =
-  Elm.Kernel.Url.percentEncode
+  Gren.Kernel.Url.percentEncode
 
 
 {-| **Use [Url.Parser](Url-Parser) instead!** It will decode query
@@ -287,4 +287,4 @@ This is the same behavior as JavaScript's [`decodeURIComponent`][js] function.
 -}
 percentDecode : String -> Maybe String
 percentDecode =
-  Elm.Kernel.Url.percentDecode
+  Gren.Kernel.Url.percentDecode

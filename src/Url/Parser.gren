@@ -54,7 +54,7 @@ infix left  8 (<?>) = questionMark
 -- PARSERS
 
 
-{-| Turn URLs like `/blog/42/cat-herding-techniques` into nice Elm data.
+{-| Turn URLs like `/blog/42/cat-herding-techniques` into nice Gren data.
 -}
 type Parser a b =
   Parser (State a -> List (State b))

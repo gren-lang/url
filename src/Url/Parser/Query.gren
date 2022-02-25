@@ -35,7 +35,7 @@ import Url.Parser.Internal as Q
 -- PARSERS
 
 
-{-| Parse a query like `?search=hat&page=2` into nice Elm data.
+{-| Parse a query like `?search=hat&page=2` into nice Gren data.
 -}
 type alias Parser a =
   Q.QueryParser a
