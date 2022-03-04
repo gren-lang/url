@@ -7,4 +7,4 @@ import Dict
 
 
 type QueryParser a =
-  Parser (Dict.Dict String (List String) -> a)
+  Parser (Dict.Dict String (Array String) -> a)

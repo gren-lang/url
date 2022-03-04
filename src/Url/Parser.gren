@@ -57,13 +57,13 @@ infix left  8 (<?>) = questionMark
 {-| Turn URLs like `/blog/42/cat-herding-techniques` into nice Gren data.
 -}
 type Parser a b =
-  Parser (State a -> List (State b))
+  Parser (State a -> Array (State b))
 
 
 type alias State value =
-  { visited : List String
-  , unvisited : List String
-  , params : Dict String (List String)
+  { visited : Array String
+  , unvisited : Array String
+  , params : Dict String (Array String)
   , frag : Maybe String
   , value : value
   }
@@ -184,7 +184,7 @@ custom tipe stringToSomething =
 slash : Parser a b -> Parser b c -> Parser a c
 slash (Parser parseBefore) (Parser parseAfter) =
   Parser <| \state ->
-    List.concatMap parseAfter (parseBefore state)
+    Array.concatMap parseAfter (parseBefore state)
 
 
 {-| Transform a path parser.
@@ -206,7 +206,7 @@ slash (Parser parseBefore) (Parser parseAfter) =
 map : a -> Parser a b -> Parser (b -> c) c
 map subValue (Parser parseArg) =
   Parser <| \{ visited, unvisited, params, frag, value } ->
-    List.map (mapState value) <| parseArg <|
+    Array.map (mapState value) <| parseArg <|
       State visited unvisited params frag subValue
 
 
@@ -245,10 +245,10 @@ mapState func { visited, unvisited, params, frag, value } =
 
 If there are multiple parsers that could succeed, the first one wins.
 -}
-oneOf : List (Parser a b) -> Parser a b
+oneOf : Array (Parser a b) -> Parser a b
 oneOf parsers =
   Parser <| \state ->
-    List.concatMap (\(Parser parser) -> parser state) parsers
+    Array.concatMap (\(Parser parser) -> parser state) parsers
 
 
 {-| A parser that does not consume any path segments.
@@ -405,7 +405,7 @@ parse (Parser parser) url =
     State [] (preparePath url.path) (prepareQuery url.query) url.fragment identity
 
 
-getFirstMatch : List (State a) -> Maybe a
+getFirstMatch : Array (State a) -> Maybe a
 getFirstMatch states =
   case states of
     [] ->
@@ -427,7 +427,7 @@ getFirstMatch states =
 -- PREPARE PATH
 
 
-preparePath : String -> List String
+preparePath : String -> Array String
 preparePath path =
   case String.split "/" path of
     "" :: segments ->
@@ -437,7 +437,7 @@ preparePath path =
       removeFinalEmpty segments
 
 
-removeFinalEmpty : List String -> List String
+removeFinalEmpty : Array String -> Array String
 removeFinalEmpty segments =
   case segments of
     [] ->
@@ -454,17 +454,17 @@ removeFinalEmpty segments =
 -- PREPARE QUERY
 
 
-prepareQuery : Maybe String -> Dict String (List String)
+prepareQuery : Maybe String -> Dict String (Array String)
 prepareQuery maybeQuery =
   case maybeQuery of
     Nothing ->
       Dict.empty
 
     Just qry ->
-      List.foldr addParam Dict.empty (String.split "&" qry)
+      Array.foldr addParam Dict.empty (String.split "&" qry)
 
 
-addParam : String -> Dict String (List String) -> Dict String (List String)
+addParam : String -> Dict String (Array String) -> Dict String (Array String)
 addParam segment dict =
   case String.split "=" segment of
     [rawKey, rawValue] ->
@@ -484,11 +484,11 @@ addParam segment dict =
       dict
 
 
-addToParametersHelp : a -> Maybe (List a) -> Maybe (List a)
-addToParametersHelp value maybeList =
-  case maybeList of
+addToParametersHelp : a -> Maybe (Array a) -> Maybe (Array a)
+addToParametersHelp value maybeArray =
+  case maybeArray of
     Nothing ->
       Just [value]
 
-    Just list ->
-      Just (value :: list)
+    Just array ->
+      Just ([value] ++ array)

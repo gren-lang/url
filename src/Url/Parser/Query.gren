@@ -102,7 +102,7 @@ int key =
 
     debug : Parser (Maybe Bool)
     debug =
-      enum "debug" (Dict.fromList [ ("true", True), ("false", False) ])
+      enum "debug" (Dict.fromArray [ ("true", True), ("false", False) ])
 
     -- ?debug=true            == Just True
     -- ?debug=false           == Just False
@@ -140,16 +140,16 @@ anything though!
 Say you are unlucky enough to need to handle `?post=2&post=7` to show a couple
 posts on screen at once. You could say:
 
-    posts : Parser (List Int)
+    posts : Parser (Array Int)
     posts =
-      custom "post" (List.filterMap String.toInt)
+      custom "post" (Array.filterMap String.toInt)
 
     -- ?post=2        == [2]
     -- ?post=2&post=7 == [2, 7]
     -- ?post=2&post=x == [2]
     -- ?hats=2        == []
 -}
-custom : String -> (List String -> a) -> Parser a
+custom : String -> (Array String -> a) -> Parser a
 custom key func =
   Q.Parser <| \dict ->
     func (Maybe.withDefault [] (Dict.get key dict))
@@ -210,7 +210,7 @@ could be parsed with something like this:
 
     order : Dict.Dict String Order
     order =
-      Dict.fromList
+      Dict.fromArray
         [ ( "ascending", Ascending )
         , ( "descending", Descending )
         ]
