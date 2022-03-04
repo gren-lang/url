@@ -125,11 +125,11 @@ chompAfterProtocol protocol str =
   if String.isEmpty str then
     Nothing
   else
-    case String.indexes "#" str of
-      [] ->
+    case Array.get 0 (String.indices "#" str) of
+      Nothing ->
         chompBeforeFragment protocol Nothing str
 
-      i :: _ ->
+      Just i ->
         chompBeforeFragment protocol (Just (String.dropLeft (i + 1) str)) (String.left i str)
 
 
@@ -138,11 +138,11 @@ chompBeforeFragment protocol frag str =
   if String.isEmpty str then
     Nothing
   else
-    case String.indexes "?" str of
-      [] ->
+    case Array.get 0 (String.indices "?" str) of
+      Nothing ->
         chompBeforeQuery protocol Nothing frag str
 
-      i :: _ ->
+      Just i ->
         chompBeforeQuery protocol (Just (String.dropLeft (i + 1) str)) frag (String.left i str)
 
 
@@ -151,11 +151,11 @@ chompBeforeQuery protocol params frag str =
   if String.isEmpty str then
     Nothing
   else
-    case String.indexes "/" str of
-      [] ->
+    case Array.get 0 (String.indices "/" str) of
+      Nothing ->
         chompBeforePath protocol "/" params frag str
 
-      i :: _ ->
+      Just i ->
         chompBeforePath protocol (String.dropLeft i str) params frag (String.left i str)
 
 
@@ -164,11 +164,11 @@ chompBeforePath protocol path params frag str =
   if String.isEmpty str || String.contains "@" str then
     Nothing
   else
-    case String.indexes ":" str of
+    case String.indices ":" str of
       [] ->
         Just <| Url protocol str Nothing path params frag
 
-      i :: [] ->
+      [i] ->
         case String.toInt (String.dropLeft (i + 1) str) of
           Nothing ->
             Nothing

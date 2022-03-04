@@ -112,13 +112,13 @@ The path segment must be an exact match!
 s : String -> Parser a a
 s str =
   Parser <| \{ visited, unvisited, params, frag, value } ->
-    case unvisited of
-      [] ->
+    case Array.get 0 unvisited of
+      Nothing ->
         []
 
-      next :: rest ->
+      Just next ->
         if next == str then
-          [ State (next :: visited) rest params frag value ]
+          [ State ([next] ++ visited) (Array.dropLeft 1 unvisited) params frag value ]
 
         else
           []
@@ -144,14 +144,14 @@ You can use it to define something like “only CSS files” like this:
 custom : String -> (String -> Maybe a) -> Parser (a -> b) b
 custom tipe stringToSomething =
   Parser <| \{ visited, unvisited, params, frag, value } ->
-    case unvisited of
-      [] ->
+    case Array.get 0 unvisited of
+      Nothing ->
         []
 
-      next :: rest ->
+      Just next ->
         case stringToSomething next of
           Just nextValue ->
-            [ State (next :: visited) rest params frag (value nextValue) ]
+            [ State ([next] ++ visited) (Array.dropLeft 1 unvisited) params frag (value nextValue) ]
 
           Nothing ->
             []
@@ -407,11 +407,11 @@ parse (Parser parser) url =
 
 getFirstMatch : Array (State a) -> Maybe a
 getFirstMatch states =
-  case states of
-    [] ->
+  case Array.get 0 states of
+    Nothing ->
       Nothing
 
-    state :: rest ->
+    Just state ->
       case state.unvisited of
         [] ->
           Just state.value
@@ -420,7 +420,7 @@ getFirstMatch states =
           Just state.value
 
         _ ->
-          getFirstMatch rest
+          getFirstMatch (Array.dropLeft 1 rest)
 
 
 
@@ -429,25 +429,29 @@ getFirstMatch states =
 
 preparePath : String -> Array String
 preparePath path =
-  case String.split "/" path of
-    "" :: segments ->
-      removeFinalEmpty segments
+  let
+    segments =
+      String.split "/" path
+  in
+  case Array.get 0 segments of
+    Just "" ->
+      removeFinalEmpty (Array.dropLeft 1 segments)
 
-    segments ->
+    _ ->
       removeFinalEmpty segments
 
 
 removeFinalEmpty : Array String -> Array String
 removeFinalEmpty segments =
-  case segments of
-    [] ->
+  case Array.get 0 segments of
+    Nothing ->
       []
 
-    "" :: [] ->
+    Just "" ->
       []
 
-    segment :: rest ->
-      segment :: removeFinalEmpty rest
+    Just segment ->
+      [segment] ++ removeFinalEmpty (Array.dropLeft 1 segments)
 
 
 
