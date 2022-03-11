@@ -184,7 +184,7 @@ custom tipe stringToSomething =
 slash : Parser a b -> Parser b c -> Parser a c
 slash (Parser parseBefore) (Parser parseAfter) =
   Parser <| \state ->
-    Array.concatMap parseAfter (parseBefore state)
+    Array.flatMap parseAfter (parseBefore state)
 
 
 {-| Transform a path parser.
@@ -248,7 +248,7 @@ If there are multiple parsers that could succeed, the first one wins.
 oneOf : Array (Parser a b) -> Parser a b
 oneOf parsers =
   Parser <| \state ->
-    Array.concatMap (\(Parser parser) -> parser state) parsers
+    Array.flatMap (\(Parser parser) -> parser state) parsers
 
 
 {-| A parser that does not consume any path segments.
@@ -420,7 +420,7 @@ getFirstMatch states =
           Just state.value
 
         _ ->
-          getFirstMatch (Array.dropLeft 1 rest)
+          getFirstMatch (Array.dropLeft 1 states)
 
 
 
