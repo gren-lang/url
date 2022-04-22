@@ -118,7 +118,7 @@ s str =
 
       Just next ->
         if next == str then
-          [ State ([next] ++ visited) (Array.dropLeft 1 unvisited) params frag value ]
+          [ State ([next] ++ visited) (Array.dropFirst 1 unvisited) params frag value ]
 
         else
           []
@@ -151,7 +151,7 @@ custom tipe stringToSomething =
       Just next ->
         case stringToSomething next of
           Just nextValue ->
-            [ State ([next] ++ visited) (Array.dropLeft 1 unvisited) params frag (value nextValue) ]
+            [ State ([next] ++ visited) (Array.dropFirst 1 unvisited) params frag (value nextValue) ]
 
           Nothing ->
             []
@@ -420,7 +420,7 @@ getFirstMatch states =
           Just state.value
 
         _ ->
-          getFirstMatch (Array.dropLeft 1 states)
+          getFirstMatch (Array.dropFirst 1 states)
 
 
 
@@ -435,7 +435,7 @@ preparePath path =
   in
   case Array.get 0 segments of
     Just "" ->
-      removeFinalEmpty (Array.dropLeft 1 segments)
+      removeFinalEmpty (Array.dropFirst 1 segments)
 
     _ ->
       removeFinalEmpty segments
@@ -451,7 +451,7 @@ removeFinalEmpty segments =
       []
 
     Just segment ->
-      [segment] ++ removeFinalEmpty (Array.dropLeft 1 segments)
+      [segment] ++ removeFinalEmpty (Array.dropFirst 1 segments)
 
 
 
