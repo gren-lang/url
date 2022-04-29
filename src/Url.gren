@@ -166,7 +166,14 @@ chompBeforePath protocol path params frag str =
   else
     case String.indices ":" str of
       [] ->
-        Just <| Url protocol str Nothing path params frag
+        Just <| 
+            { protocol = protocol 
+            , host = str 
+            , port_ = Nothing 
+            , path = path 
+            , query = params 
+            , fragment = frag
+            }
 
       [i] ->
         case String.toInt (String.dropLeft (i + 1) str) of
@@ -174,7 +181,14 @@ chompBeforePath protocol path params frag str =
             Nothing
 
           port_ ->
-            Just <| Url protocol (String.left i str) port_ path params frag
+            Just <| 
+                { protocol = protocol
+                , host = (String.left i str) 
+                , port_ = port_ 
+                , path = path 
+                , query = params 
+                , fragment = frag
+                }
 
       _ ->
         Nothing

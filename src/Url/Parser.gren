@@ -118,7 +118,14 @@ s str =
 
       Just next ->
         if next == str then
-          [ State ([next] ++ visited) (Array.dropFirst 1 unvisited) params frag value ]
+          [ 
+            { visited = ([next] ++ visited) 
+            , unvisited = (Array.dropFirst 1 unvisited) 
+            , params = params 
+            , frag = frag 
+            , value = value 
+            } 
+          ]
 
         else
           []
@@ -151,7 +158,12 @@ custom tipe stringToSomething =
       Just next ->
         case stringToSomething next of
           Just nextValue ->
-            [ State ([next] ++ visited) (Array.dropFirst 1 unvisited) params frag (value nextValue) ]
+            [ { visited = ([next] ++ visited) 
+              , unvisited = (Array.dropFirst 1 unvisited) 
+              , params = params 
+              , frag = frag 
+              , value = (value nextValue) 
+            } ]
 
           Nothing ->
             []
@@ -207,12 +219,22 @@ map : a -> Parser a b -> Parser (b -> c) c
 map subValue (Parser parseArg) =
   Parser <| \{ visited, unvisited, params, frag, value } ->
     Array.map (mapState value) <| parseArg <|
-      State visited unvisited params frag subValue
+      { visited = visited
+      , unvisited = unvisited
+      , params = params 
+      , frag = frag 
+      , value = subValue 
+      }
 
 
 mapState : (a -> b) -> State a -> State b
 mapState func { visited, unvisited, params, frag, value } =
-  State visited unvisited params frag (func value)
+  { visited = visited 
+  , unvisited = unvisited 
+  , params = params 
+  , frag = frag 
+  , value = (func value)
+  }
 
 
 {-| Try a bunch of different path parsers.
@@ -322,7 +344,12 @@ segments.
 query : Query.Parser query -> Parser (query -> a) a
 query (Q.Parser queryParser) =
   Parser <| \{ visited, unvisited, params, frag, value } ->
-    [ State visited unvisited params frag (value (queryParser params))
+    [ { visited = visited 
+      , unvisited = unvisited 
+      , params = params 
+      , frag = frag 
+      , value = (value (queryParser params))
+      }
     ]
 
 
@@ -351,7 +378,12 @@ be handy for handling links to DOM elements within a page. Pages like this one!
 fragment : (Maybe String -> fragment) -> Parser (fragment -> a) a
 fragment toFrag =
   Parser <| \{ visited, unvisited, params, frag, value } ->
-    [ State visited unvisited params frag (value (toFrag frag))
+    [ { visited = visited 
+      , unvisited = unvisited 
+      , params = params 
+      , frag = frag 
+      , value = (value (toFrag frag))
+      }
     ]
 
 
@@ -402,7 +434,12 @@ the initial URL and any changes.
 parse : Parser (a -> a) a -> Url -> Maybe a
 parse (Parser parser) url =
   getFirstMatch <| parser <|
-    State [] (preparePath url.path) (prepareQuery url.query) url.fragment identity
+    { visited = [] 
+    , unvisited = (preparePath url.path) 
+    , params = (prepareQuery url.query) 
+    , frag = url.fragment 
+    , value = identity
+    }
 
 
 getFirstMatch : Array (State a) -> Maybe a
