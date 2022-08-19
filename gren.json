@@ -1,5 +1,6 @@
 {
     "type": "package",
+    "platform": "browser",
     "name": "gren-lang/url",
     "summary": "Create and parse URLs.",
     "license": "BSD-3-Clause",
