@@ -136,7 +136,7 @@ custom root pathSegments parameters maybeFragment =
     fragmentless =
       rootToPrePath root ++ String.join "/" pathSegments ++ toQuery parameters
   in
-  case maybeFragment of
+  when maybeFragment is
     Nothing ->
       fragmentless
 
@@ -146,7 +146,7 @@ custom root pathSegments parameters maybeFragment =
 
 rootToPrePath : Root -> String
 rootToPrePath root =
-  case root of
+  when root is
     Absolute ->
       "/"
 
@@ -165,7 +165,7 @@ rootToPrePath root =
 all the query parameters they get, so you do not need to worry about it!
 -}
 type QueryParameter =
-  QueryParameter String String
+  QueryParameter { key : String, value : String }
 
 
 {-| Create a percent-encoded query parameter.
@@ -178,7 +178,7 @@ type QueryParameter =
 -}
 string : String -> String -> QueryParameter
 string key value =
-  QueryParameter (Url.percentEncode key) (Url.percentEncode value)
+  QueryParameter { key = (Url.percentEncode key), value = (Url.percentEncode value) }
 
 
 {-| Create a percent-encoded query parameter.
@@ -191,7 +191,7 @@ So this is just a convenience function, making your code a bit shorter!
 -}
 int : String -> Int -> QueryParameter
 int key value =
-  QueryParameter (Url.percentEncode key) (String.fromInt value)
+  QueryParameter { key = (Url.percentEncode key), value = (String.fromInt value) }
 
 
 {-| Convert a Array of query parameters to a percent-encoded query. This
@@ -211,7 +211,7 @@ function is used by `absolute`, `relative`, etc.
 -}
 toQuery : Array QueryParameter -> String
 toQuery parameters =
-  case parameters of
+  when parameters is
     [] ->
       ""
 
@@ -220,5 +220,5 @@ toQuery parameters =
 
 
 toQueryPair : QueryParameter -> String
-toQueryPair (QueryParameter key value) =
+toQueryPair (QueryParameter { key, value }) =
   key ++ "=" ++ value

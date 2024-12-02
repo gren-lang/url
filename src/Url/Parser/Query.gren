@@ -62,7 +62,7 @@ parameters for some reason.
 string : String -> Parser (Maybe String)
 string key =
   custom key <| \stringList ->
-    case stringList of
+    when stringList is
       [str] ->
         Just str
 
@@ -88,7 +88,7 @@ or something like that.
 int : String -> Parser (Maybe Int)
 int key =
   custom key <| \stringList ->
-    case stringList of
+    when stringList is
       [str] ->
         String.toInt str
 
@@ -121,7 +121,7 @@ to get a parser of type `Parser Bool` that swallows any errors and defaults to
 enum : String -> Dict.Dict String a -> Parser (Maybe a)
 enum key dict =
   custom key <| \stringList ->
-    case stringList of
+    when stringList is
       [str] ->
         Dict.get str dict
 

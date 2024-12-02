@@ -111,10 +111,10 @@ and `&` characters!
 fromString : String -> Maybe Url
 fromString str =
   if String.startsWith "http://" str then
-    chompAfterProtocol Http (String.dropLeft 7 str)
+    chompAfterProtocol Http (String.dropFirst 7 str)
 
   else if String.startsWith "https://" str then
-    chompAfterProtocol Https (String.dropLeft 8 str)
+    chompAfterProtocol Https (String.dropFirst 8 str)
 
   else
     Nothing
@@ -125,12 +125,12 @@ chompAfterProtocol protocol str =
   if String.isEmpty str then
     Nothing
   else
-    case Array.get 0 (String.indices "#" str) of
+    when Array.get 0 (String.indices "#" str) is
       Nothing ->
         chompBeforeFragment protocol Nothing str
 
       Just i ->
-        chompBeforeFragment protocol (Just (String.dropLeft (i + 1) str)) (String.left i str)
+        chompBeforeFragment protocol (Just (String.dropFirst (i + 1) str)) (String.takeFirst i str)
 
 
 chompBeforeFragment : Protocol -> Maybe String -> String -> Maybe Url
@@ -138,12 +138,12 @@ chompBeforeFragment protocol frag str =
   if String.isEmpty str then
     Nothing
   else
-    case Array.get 0 (String.indices "?" str) of
+    when Array.get 0 (String.indices "?" str) is
       Nothing ->
         chompBeforeQuery protocol Nothing frag str
 
       Just i ->
-        chompBeforeQuery protocol (Just (String.dropLeft (i + 1) str)) frag (String.left i str)
+        chompBeforeQuery protocol (Just (String.dropFirst (i + 1) str)) frag (String.takeFirst i str)
 
 
 chompBeforeQuery : Protocol -> Maybe String -> Maybe String -> String -> Maybe Url
@@ -151,12 +151,12 @@ chompBeforeQuery protocol params frag str =
   if String.isEmpty str then
     Nothing
   else
-    case Array.get 0 (String.indices "/" str) of
+    when Array.get 0 (String.indices "/" str) is
       Nothing ->
         chompBeforePath protocol "/" params frag str
 
       Just i ->
-        chompBeforePath protocol (String.dropLeft i str) params frag (String.left i str)
+        chompBeforePath protocol (String.dropFirst i str) params frag (String.takeFirst i str)
 
 
 chompBeforePath : Protocol -> String -> Maybe String -> Maybe String -> String -> Maybe Url
@@ -164,7 +164,7 @@ chompBeforePath protocol path params frag str =
   if String.isEmpty str || String.contains "@" str then
     Nothing
   else
-    case String.indices ":" str of
+    when String.indices ":" str is
       [] ->
         Just <| 
             { protocol = protocol 
@@ -176,14 +176,14 @@ chompBeforePath protocol path params frag str =
             }
 
       [i] ->
-        case String.toInt (String.dropLeft (i + 1) str) of
+        when String.toInt (String.dropFirst (i + 1) str) is
           Nothing ->
             Nothing
 
           port_ ->
             Just <| 
                 { protocol = protocol
-                , host = (String.left i str) 
+                , host = (String.takeFirst i str) 
                 , port_ = port_ 
                 , path = path 
                 , query = params 
@@ -200,7 +200,7 @@ toString : Url -> String
 toString url =
   let
     http =
-      case url.protocol of
+      when url.protocol is
         Http ->
           "http://"
 
@@ -214,7 +214,7 @@ toString url =
 
 addPort : Maybe Int -> String -> String
 addPort maybePort starter =
-  case maybePort of
+  when maybePort is
     Nothing ->
       starter
 
@@ -224,7 +224,7 @@ addPort maybePort starter =
 
 addPrefixed : String -> Maybe String -> String -> String
 addPrefixed prefix maybeSegment starter =
-  case maybeSegment of
+  when maybeSegment is
     Nothing ->
       starter
 

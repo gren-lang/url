@@ -112,7 +112,7 @@ The path segment must be an exact match!
 s : String -> Parser a a
 s str =
   Parser <| \{ visited, unvisited, params, frag, value } ->
-    case Array.get 0 unvisited of
+    when Array.get 0 unvisited is
       Nothing ->
         []
 
@@ -151,12 +151,12 @@ You can use it to define something like “only CSS files” like this:
 custom : String -> (String -> Maybe a) -> Parser (a -> b) b
 custom tipe stringToSomething =
   Parser <| \{ visited, unvisited, params, frag, value } ->
-    case Array.get 0 unvisited of
+    when Array.get 0 unvisited is
       Nothing ->
         []
 
       Just next ->
-        case stringToSomething next of
+        when stringToSomething next is
           Just nextValue ->
             [ { visited = ([next] ++ visited) 
               , unvisited = (Array.dropFirst 1 unvisited) 
@@ -196,7 +196,7 @@ custom tipe stringToSomething =
 slash : Parser a b -> Parser b c -> Parser a c
 slash (Parser parseBefore) (Parser parseAfter) =
   Parser <| \state ->
-    Array.flatMap parseAfter (parseBefore state)
+    Array.mapAndFlatten parseAfter (parseBefore state)
 
 
 {-| Transform a path parser.
@@ -270,7 +270,7 @@ If there are multiple parsers that could succeed, the first one wins.
 oneOf : Array (Parser a b) -> Parser a b
 oneOf parsers =
   Parser <| \state ->
-    Array.flatMap (\(Parser parser) -> parser state) parsers
+    Array.mapAndFlatten (\(Parser parser) -> parser state) parsers
 
 
 {-| A parser that does not consume any path segments.
@@ -409,7 +409,7 @@ parameters, and fragment.
 
     toRoute : String -> Route
     toRoute string =
-      case Url.fromString string of
+      when Url.fromString string is
         Nothing ->
           NotFound
 
@@ -444,12 +444,12 @@ parse (Parser parser) url =
 
 getFirstMatch : Array (State a) -> Maybe a
 getFirstMatch states =
-  case Array.get 0 states of
+  when Array.get 0 states is
     Nothing ->
       Nothing
 
     Just state ->
-      case state.unvisited of
+      when state.unvisited is
         [] ->
           Just state.value
 
@@ -470,7 +470,7 @@ preparePath path =
     segments =
       String.split "/" path
   in
-  case Array.get 0 segments of
+  when Array.get 0 segments is
     Just "" ->
       removeFinalEmpty (Array.dropFirst 1 segments)
 
@@ -480,7 +480,7 @@ preparePath path =
 
 removeFinalEmpty : Array String -> Array String
 removeFinalEmpty segments =
-  case Array.get 0 segments of
+  when Array.get 0 segments is
     Nothing ->
       []
 
@@ -497,7 +497,7 @@ removeFinalEmpty segments =
 
 prepareQuery : Maybe String -> Dict String (Array String)
 prepareQuery maybeQuery =
-  case maybeQuery of
+  when maybeQuery is
     Nothing ->
       Dict.empty
 
@@ -507,14 +507,14 @@ prepareQuery maybeQuery =
 
 addParam : String -> Dict String (Array String) -> Dict String (Array String)
 addParam segment dict =
-  case String.split "=" segment of
+  when String.split "=" segment is
     [rawKey, rawValue] ->
-      case Url.percentDecode rawKey of
+      when Url.percentDecode rawKey is
         Nothing ->
           dict
 
         Just key ->
-          case Url.percentDecode rawValue of
+          when Url.percentDecode rawValue is
             Nothing ->
               dict
 
@@ -527,7 +527,7 @@ addParam segment dict =
 
 addToParametersHelp : a -> Maybe (Array a) -> Maybe (Array a)
 addToParametersHelp value maybeArray =
-  case maybeArray of
+  when maybeArray is
     Nothing ->
       Just [value]
 
